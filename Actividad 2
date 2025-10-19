@@ -1,0 +1,160 @@
+class Persona:
+    """Clase base para representar a una persona."""
+    def __init__(self, dni, apellido, nombre, estado_civil):
+        self.dni = dni
+        self.apellido = apellido
+        self.nombre = nombre
+        self.estado_civil = estado_civil
+
+    def __str__(self):
+        return f"DNI: {self.dni}, Apellido: {self.apellido}, Nombre: {self.nombre}, Estado Civil: {self.estado_civil}"
+
+class NodoABB:
+    """Clase para representar un nodo del Árbol Binario de Búsqueda (ABB)."""
+    def __init__(self, persona):
+        self.persona = persona  # Guarda el objeto Persona
+        self.izquierda = None
+        self.derecha = None
+        
+    def __str__(self):
+        return str(self.persona)
+        
+# --- Funciones Auxiliares de Búsqueda ---
+
+def buscar_en_abb(dni_buscado, nodo_actual):
+    """Busca recursivamente una persona por DNI en el ABB de Varones."""
+    if nodo_actual is None:
+        return None
+    
+    # El DNI es la clave de ordenamiento
+    if dni_buscado == nodo_actual.persona.dni:
+        return nodo_actual.persona # Retorna el objeto Persona
+    elif dni_buscado < nodo_actual.persona.dni:
+        return buscar_en_abb(dni_buscado, nodo_actual.izquierda)
+    else: # dni_buscado > nodo_actual.persona.dni
+        return buscar_en_abb(dni_buscado, nodo_actual.derecha)
+
+def buscar_en_lista(dni_buscado, lista):
+    """Busca secuencialmente una persona por DNI en el listado de Mujeres."""
+    for persona in lista:
+        if persona.dni == dni_buscado:
+            return persona # Retorna el objeto Persona
+    return None
+
+def modificar_datos_persona(dni_buscado, tipo_listado, listado_mujeres, raiz_varones):
+    """
+    Busca y modifica los datos de una persona en el listado de Varones (ABB) o Mujeres (Lista).
+    
+    :param dni_buscado: DNI de la persona a buscar.
+    :param tipo_listado: 'VARONES' o 'MUJERES'.
+    :param listado_mujeres: Lista con objetos Persona.
+    :param raiz_varones: Nodo raíz del ABB de varones.
+    :return: True si se modificó con éxito, False en caso contrario.
+    """
+    
+    # Paso 1: Inicializar la búsqueda.
+    registro_persona = None
+    
+    if tipo_listado.upper() == "VARONES":
+        registro_persona = buscar_en_abb(dni_buscado, raiz_varones)
+    elif tipo_listado.upper() == "MUJERES":
+        registro_persona = buscar_en_lista(dni_buscado, listado_mujeres)
+    else:
+        print(f"ERROR: Tipo de listado no válido ('{tipo_listado}'). Debe ser 'VARONES' o 'MUJERES'.")
+        return False
+
+    # Paso 2: Verificar si la persona fue encontrada
+    if registro_persona is not None:
+        print("\n--- Persona Encontrada ---")
+        print(f"Datos Actuales: {registro_persona}")
+        
+        # Paso 3: Solicitar y leer los nuevos datos
+        
+        # Modificar Apellido
+        opcion_apellido = input("¿Desea modificar Apellido? (S/N): ").upper()
+        if opcion_apellido == "S":
+            nuevo_apellido = input(f"Ingrese nuevo Apellido (Actual: {registro_persona.apellido}): ")
+            registro_persona.apellido = nuevo_apellido
+            
+        # Modificar Nombre
+        opcion_nombre = input("¿Desea modificar Nombre? (S/N): ").upper()
+        if opcion_nombre == "S":
+            nuevo_nombre = input(f"Ingrese nuevo Nombre (Actual: {registro_persona.nombre}): ")
+            registro_persona.nombre = nuevo_nombre
+
+        # Modificar Estado Civil
+        opcion_estado_civil = input("¿Desea modificar Estado Civil? (S/N): ").upper()
+        if opcion_estado_civil == "S":
+            nuevo_estado_civil = input(f"Ingrese nuevo Estado Civil (Actual: {registro_persona.estado_civil}): ")
+            registro_persona.estado_civil = nuevo_estado_civil.capitalize()
+        
+        print("\nMODIFICACIÓN EXITOSA: Los datos de la persona han sido actualizados.")
+        print(f"Nuevos Datos: {registro_persona}")
+        return True
+        
+    else:
+        print(f"\nERROR: No se encontró a la persona con DNI {dni_buscado} en el listado de {tipo_listado.upper()}.")
+        return False
+
+# --- Función de Inserción para construir el ABB (necesaria para el setup) ---
+def insertar_en_abb(persona, nodo):
+    """Inserta un objeto Persona en el ABB usando el DNI como clave."""
+    if nodo is None:
+        return NodoABB(persona)
+    
+    if persona.dni < nodo.persona.dni:
+        nodo.izquierda = insertar_en_abb(persona, nodo.izquierda)
+    elif persona.dni > nodo.persona.dni:
+        nodo.derecha = insertar_en_abb(persona, nodo.derecha)
+        
+    return nodo
+
+# --- Datos de la Consigna ---
+
+# 1. Listado de Mujeres
+datos_mujeres = [
+    (12985093, "Quiroga", "Julieta", "Casada"),
+    (16685000, "Medina", "Romina", "Soltera"),
+    (26178051, "Riquelme", "Carolina", "Casada"),
+    (28987654, "Monza", "Alejandra", "Soltera"),
+    (24345678, "Rodríguez", "Viviana", "Soltera"),
+    (18768418, "Díaz", "Blanca", "Casada"),
+    (17455294, "Nieva", "Susana", "Casada"),
+    (12983896, "Márquez", "Lucia", "Soltera"),
+]
+
+listado_mujeres = [Persona(*datos) for datos in datos_mujeres]
+
+# 2. ABB de Varones
+datos_varones = [
+    (24876443, "Viauche", "Fabián", "Soltero"), # Será la Raíz
+    (14242368, "Belo", "Gonzalo", "Casado"),
+    (27104856, "Aguirre", "Andrés", "Casado"),
+    (21789423, "Álvarez", "Pablo", "Soltero"),
+    (17678294, "Bazán", "Rodrigo", "Soltero"),
+    (13637531, "Casano", "Germán", "Casado"),
+    (14619239, "Pinto", "Lucas", "Casado"),
+    (30987323, "Taguada", "Carlos", "Soltero"),
+    (12578434, "Borges", "Juan", "Soltero"),
+]
+
+raiz_varones = None
+for datos in datos_varones:
+    persona = Persona(*datos)
+    raiz_varones = insertar_en_abb(persona, raiz_varones)
+
+# --- EJEMPLO DE USO ---
+
+print("--- DEMOSTRACIÓN DE MODIFICACIÓN DE DATOS ---")
+
+# Ejemplo 1: Modificar a un varón (debe interactuar con el ABB)
+print("\n--- Intentando modificar a Fabián Viauche (DNI 24876443) ---")
+# El usuario deberá ingresar las opciones 'S' o 'N' y los nuevos datos
+modificar_datos_persona(24876443, "VARONES", listado_mujeres, raiz_varones)
+
+print("\n------------------------------------------------------")
+
+# Ejemplo 2: Modificar a una mujer (debe interactuar con la lista)
+print("\n--- Intentando modificar a Romina Medina (DNI 16685000) ---")
+# El usuario deberá ingresar las opciones 'S' o 'N' y los nuevos datos
+modificar_datos_persona(16685000, "MUJERES", listado_mujeres, raiz_varones)
