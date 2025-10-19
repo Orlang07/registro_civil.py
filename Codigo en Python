@@ -1,0 +1,63 @@
+# Suponiendo estructura básica de Persona como un diccionario
+# Persona = {"DNI": str, "Apellido": str, "Nombre": str, "Estado_Civil": str}
+
+def buscar_en_lista(dni_buscado, listado_mujeres):
+    for persona in listado_mujeres:
+        if persona["DNI"] == dni_buscado:
+            return persona
+    return None
+
+def buscar_en_abb(dni_buscado, nodo):
+    # nodo es un diccionario con "dato", "izquierdo", "derecho"
+    if nodo is None:
+        return None
+    if nodo["dato"]["DNI"] == dni_buscado:
+        return nodo["dato"]
+    elif dni_buscado < nodo["dato"]["DNI"]:
+        return buscar_en_abb(dni_buscado, nodo["izquierdo"])
+    else:
+        return buscar_en_abb(dni_buscado, nodo["derecho"])
+
+def buscar_persona(dni_buscado, tipo_listado, listado_mujeres, raiz_varones):
+    if tipo_listado == "VARONES":
+        return buscar_en_abb(dni_buscado, raiz_varones)
+    elif tipo_listado == "MUJERES":
+        return buscar_en_lista(dni_buscado, listado_mujeres)
+    else:
+        return None
+
+def modificar_datos_persona(dni_a_modificar, tipo_listado, listado_mujeres, raiz_varones):
+    registro_encontrado = buscar_persona(dni_a_modificar, tipo_listado, listado_mujeres, raiz_varones)
+
+    if registro_encontrado is not None:
+        print("Persona encontrada. Datos actuales:")
+        print(registro_encontrado["Apellido"], registro_encontrado["Nombre"], registro_encontrado["Estado_Civil"])
+
+        nuevo_apellido = input("Ingrese nuevo Apellido (o deje vacío para no modificar): ")
+        if nuevo_apellido.strip():
+            registro_encontrado["Apellido"] = nuevo_apellido
+
+        nuevo_nombre = input("Ingrese nuevo Nombre (o deje vacío para no modificar): ")
+        if nuevo_nombre.strip():
+            registro_encontrado["Nombre"] = nuevo_nombre
+
+        nuevo_estado_civil = input("Ingrese nuevo Estado Civil (soltero/casado, o deje vacío para no modificar): ")
+        if nuevo_estado_civil.strip():
+            registro_encontrado["Estado_Civil"] = nuevo_estado_civil
+
+        print("MODIFICACIÓN EXITOSA: Los datos de la persona han sido actualizados.")
+    else:
+        print(f"ERROR: Persona con DNI {dni_a_modificar} no encontrada en el listado de {tipo_listado}.")
+
+# 📌 Ejemplo de uso:
+listado_mujeres = [
+    {"DNI": "123", "Apellido": "García", "Nombre": "Ana", "Estado_Civil": "Soltera"}
+]
+
+raiz_varones = {
+    "dato": {"DNI": "456", "Apellido": "Pérez", "Nombre": "Juan", "Estado_Civil": "Casado"},
+    "izquierdo": None,
+    "derecho": None
+}
+
+modificar_datos_persona("123", "MUJERES", listado_mujeres, raiz_varones)
